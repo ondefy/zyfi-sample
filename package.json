@@ -1,0 +1,18 @@
+{
+  "name": "zyfi-sample",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "@rainbow-me/rainbowkit": "^2.1.4",
+    "@tanstack/react-query": "^5.51.21",
+    "@types/react": "^18.3.3",
+    "next": "^14.2.5",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-toastify": "^10.0.5",
+    "typescript": "^5.5.4",
+    "viem": "^2.18.8",
+    "wagmi": "^2.12.4"
+  }
+}
