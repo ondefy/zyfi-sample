@@ -10,28 +10,20 @@ import { useAccount, useBalance } from 'wagmi'
 import { Flip, ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
-import { ERC20_TOKEN_ADDRESS, executeContractFunction } from '../utils/zyfi'
+import { ERC20_TOKEN_ADDRESS as token, executeContractFunction } from '../utils/zyfi'
 
 const Home: NextPage = () => {
   const [isRunningTx, setIsRunningTx] = useState<boolean>(false)
-  const [dstWallet, setDstWallet] = useState<string>('0xD8cdF482eE16787840F1819B4a48910090b728a4')
+  const [toAddress, setToAddress] = useState<string>('0xD8cdF482eE16787840F1819B4a48910090b728a4')
   const [amount, setAmount] = useState<string>('1')
-  const { address: walletAddress, chain, chainId } = useAccount()
+  const { address, chain, chainId } = useAccount()
 
-  const {
-    data: balance,
-    refetch: refetchBalance,
-    isFetching: isFetchingBalance,
-  } = useBalance({
-    chainId,
-    address: walletAddress,
-    token: ERC20_TOKEN_ADDRESS,
-  })
+  const { data: balance, refetch: refetchBalance } = useBalance({ chainId, address, token })
 
   const onButtonClick = async () => {
     try {
       setIsRunningTx(true)
-      const hash = await executeContractFunction(chain, walletAddress, dstWallet as `0x${string}`, amount)
+      const hash = await executeContractFunction(chain, address, toAddress as `0x${string}`, amount)
       const CustomToastWithLink = () => (
         <Link href={`${chain?.blockExplorers?.default.url}/tx/${hash}`} target="_blank" style={{ textDecoration: 'none', color: 'white' }}>
           Successfully transferred {amount} token(s)! Click to view on etherscan
@@ -62,7 +54,7 @@ const Home: NextPage = () => {
         </div>
         <div style={{ marginTop: '25px', width: '50%' }}>
           <div style={{ float: 'right' }}>
-            to: <input type="text" value={dstWallet} onChange={e => setDstWallet(e.target.value)} size={44} />
+            to: <input type="text" value={toAddress} onChange={e => setToAddress(e.target.value)} size={44} />
           </div>
           <div style={{ marginTop: '25px', marginBottom: '25px', float: 'right' }}>
             amount: <input type="text" value={amount} onChange={e => setAmount(e.target.value)} size={44} />
@@ -74,7 +66,7 @@ const Home: NextPage = () => {
           </div>
         </div>
         <div style={{ marginTop: '50px', width: '50%' }}>
-          <span>
+          <span onClick={() => refetchBalance()}>
             <b>💰 MockERC20 Balance: &nbsp;</b>
             {balance ? Number(formatUnits(balance.value, 18)).toFixed(5) : '-'}
           </span>
