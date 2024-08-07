@@ -10,35 +10,35 @@ import { useAccount, useBalance } from 'wagmi'
 import { Flip, ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
-import { ERC2O_TOKEN_ADDRESS, executeContractFunction } from '../utils/zyfi'
+import { ERC20_TOKEN_ADDRESS, executeContractFunction } from '../utils/zyfi'
 
 const Home: NextPage = () => {
   const [isRunningTx, setIsRunningTx] = useState<boolean>(false)
   const [dstWallet, setDstWallet] = useState<string>('0x44cdDc04857099906117aE203Ef378f1eC379c5E')
   const [amount, setAmount] = useState<string>('1')
-  const { address: connectedWalletAddress, chain, chainId } = useAccount()
+  const { address: walletAddress, chain, chainId } = useAccount()
 
   const {
-    data: mockErc20Balance,
-    refetch: refetchMockErc20Balance,
-    isFetching: isFetchingMockErc20Balance,
+    data: balance,
+    refetch: refetchBalance,
+    isFetching: isFetchingBalance,
   } = useBalance({
     chainId,
-    address: connectedWalletAddress,
-    token: ERC2O_TOKEN_ADDRESS,
+    address: walletAddress,
+    token: ERC20_TOKEN_ADDRESS,
   })
 
   const onButtonClick = async () => {
     try {
       setIsRunningTx(true)
-      const hash = await executeContractFunction(chain, connectedWalletAddress, dstWallet as `0x${string}`, amount)
+      const hash = await executeContractFunction(chain, walletAddress, dstWallet as `0x${string}`, amount)
       const CustomToastWithLink = () => (
         <Link href={`${chain?.blockExplorers?.default.url}/tx/${hash}`} target="_blank" style={{ textDecoration: 'none', color: 'white' }}>
           Successfully transferred {amount} token(s)! Click to view on etherscan
         </Link>
       )
       toast.success(CustomToastWithLink)
-      await refetchMockErc20Balance()
+      await refetchBalance()
     } catch (e: any) {
       toast.error(e.message)
     } finally {
@@ -76,12 +76,12 @@ const Home: NextPage = () => {
         <div style={{ marginTop: '50px', width: '50%' }}>
           <span>
             <b>💰 MockERC20 Balance: &nbsp;</b>
-            {isFetchingMockErc20Balance ? (
+            {isFetchingBalance ? (
               <span style={{ marginTop: '25px', textAlign: 'center' }}>
                 <img src="/spinner.gif" width={20} />
               </span>
-            ) : mockErc20Balance ? (
-              formatUnits(mockErc20Balance.value, 18)
+            ) : balance ? (
+              formatUnits(balance.value, 18)
             ) : (
               '-'
             )}
