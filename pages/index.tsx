@@ -14,7 +14,7 @@ import { ERC20_TOKEN_ADDRESS, executeContractFunction } from '../utils/zyfi'
 
 const Home: NextPage = () => {
   const [isRunningTx, setIsRunningTx] = useState<boolean>(false)
-  const [dstWallet, setDstWallet] = useState<string>('0x44cdDc04857099906117aE203Ef378f1eC379c5E')
+  const [dstWallet, setDstWallet] = useState<string>('0xD8cdF482eE16787840F1819B4a48910090b728a4')
   const [amount, setAmount] = useState<string>('1')
   const { address: walletAddress, chain, chainId } = useAccount()
 
@@ -76,15 +76,7 @@ const Home: NextPage = () => {
         <div style={{ marginTop: '50px', width: '50%' }}>
           <span>
             <b>💰 MockERC20 Balance: &nbsp;</b>
-            {isFetchingBalance ? (
-              <span style={{ marginTop: '25px', textAlign: 'center' }}>
-                <img src="/spinner.gif" width={20} />
-              </span>
-            ) : balance ? (
-              formatUnits(balance.value, 18)
-            ) : (
-              '-'
-            )}
+            {balance ? Number(formatUnits(balance.value, 18)).toFixed(5) : '-'}
           </span>
         </div>
         {isRunningTx && (
