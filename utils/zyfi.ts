@@ -9,16 +9,16 @@ export const ERC20_TOKEN_ADDRESS = '0xFbAa6056db57fe4611BE0e394f31Fda69E55aED5'
 
 export async function executeContractFunction(chain: Chain, fromWallet: `0x${string}`, toWallet: `0x${string}`, amount: string): Promise<`0x${string}`> {
 
-  // Encode the function data for the transfer
+  // Step 1: Encode the function data for the transfer
   const encodedFunctionData = encodeFunctionData({
     abi: erc20Abi,
     functionName: 'transfer',
     args: [toWallet, parseEther(amount)],
   })
 
-  // Prepare the API request payload
+  // Step 2: Prepare the API request payload
   const apiRequestData = {
-    chainId: chain.id,
+    chainId: chain.id, // optional and defaults to zkSync
     feeTokenAddress: ERC20_TOKEN_ADDRESS,
     txData: {
       from: fromWallet,
@@ -28,7 +28,7 @@ export async function executeContractFunction(chain: Chain, fromWallet: `0x${str
     },
   }
 
-  // Fetch the response from the Zyfi API
+  // Step 3: Fetch the response from the Zyfi API
   const response = await fetch('https://api.zyfi.org/api/erc20_paymaster/v1', {
     method: 'POST',
     headers: { 'Content-type': 'application/json' },
@@ -36,11 +36,13 @@ export async function executeContractFunction(chain: Chain, fromWallet: `0x${str
   })
   const apiResponseData = await response.json()
 
-  // Get the wallet client and extend it with EIP-712 wallet actions
+  // Step 4: Get the wallet client and extend it with EIP-712 wallet actions
   const zkSyncWalletClient = (await getWalletClient(config)).extend(eip712WalletActions())
+
+  // Step 5: Find the user's latest nonce
   const nonce = await getTransactionCount(config, { address: fromWallet })
 
-  // Prepare the transaction data for the paymaster
+  // Step 6: Prepare the transaction data for the paymaster
   const paymasterTxData = {
     account: fromWallet,
     to: ERC20_TOKEN_ADDRESS,
